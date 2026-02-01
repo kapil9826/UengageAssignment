@@ -206,9 +206,9 @@ function DashboardList() {
                     </>
                   )}
 
-                  {tab === 'posts' && 'title' in item && (
+                  {tab === 'posts' && 'title' in item && 'category' in item && (
                     <>
-                      <div className="item-title">{item.title}</div>
+                      <div className="item-title">{(item as Post).title}</div>
                       {'content' in item &&
                         typeof item.content === 'string' && (
                           <div className="item-body">
@@ -221,19 +221,19 @@ function DashboardList() {
                         <span className="meta-item">
                           <strong>Category:</strong>{' '}
                           <span className="post-category-badge-small">
-                            {item.category}
+                            {(item as Post).category}
                           </span>
                         </span>
                         <span className="meta-item">
                           <strong>Status:</strong>{' '}
                           <span
-                            className={`post-status-small post-status-${item.status}`}
+                            className={`post-status-small post-status-${(item as Post).status}`}
                           >
-                            {item.status}
+                            {(item as Post).status}
                           </span>
                         </span>
                         <span className="meta-item">
-                          <strong>Published:</strong> {item.publishedAt}
+                          <strong>Published:</strong> {(item as Post).publishedAt}
                         </span>
                         {'userId' in item && (
                           <span className="meta-item">
