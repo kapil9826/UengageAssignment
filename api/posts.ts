@@ -17,7 +17,22 @@ export default async function handler(
 
   try {
     const url = 'https://jsonplaceholder.org/posts';
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const text = await response.text();
+      throw new Error(`Expected JSON but got ${contentType}. Response: ${text.substring(0, 100)}`);
+    }
+
     const data = await response.json();
     
     res.status(response.status).json(data);
