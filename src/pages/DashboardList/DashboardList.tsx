@@ -26,9 +26,9 @@ function DashboardList() {
   const [data, setData] = useState<DashboardItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const currentPage = parseInt(searchParams.get('page') || '1', 10);
+  const currentPage = Number(searchParams.get('page') || 1);
 
-  /* -------------------- FETCH DATA -------------------- */
+  /* ---------------- FETCH ---------------- */
   useEffect(() => {
     if (!tab) return;
 
@@ -53,9 +53,8 @@ function DashboardList() {
             break;
         }
 
-        setData(Array.isArray(result) ? result : []);
-      } catch (error) {
-        console.error('Error fetching data:', error);
+        setData(result);
+      } catch {
         setData([]);
       } finally {
         setLoading(false);
@@ -65,71 +64,64 @@ function DashboardList() {
     loadData();
   }, [tab]);
 
-  /* -------------------- FILTERING -------------------- */
+  /* ---------------- FILTER ---------------- */
   const filteredData = useMemo(() => {
-    if (!data.length) return [];
-
-    const searchLower = filters.search.toLowerCase();
-    const hasSearch = searchLower.length > 0;
-    const hasUserIdFilter = filters.userId.length > 0;
+    const search = filters.search.toLowerCase();
+    const hasSearch = search.length > 0;
+    const hasUserId = filters.userId.length > 0;
 
     return data.filter((item) => {
-      /* ---- SEARCH FILTER ---- */
       if (hasSearch) {
-        let matches = false;
+        let match = false;
 
-        if (tab === 'users' && 'firstname' in item && 'lastname' in item) {
-          matches =
-            item.firstname.toLowerCase().includes(searchLower) ||
-            item.lastname.toLowerCase().includes(searchLower) ||
-            (item.email?.toLowerCase().includes(searchLower) ?? false) ||
-            (item.login?.username.toLowerCase().includes(searchLower) ?? false);
+        if (tab === 'users' && 'firstname' in item) {
+          match =
+            item.firstname.toLowerCase().includes(search) ||
+            item.lastname.toLowerCase().includes(search) ||
+            (item.email?.toLowerCase().includes(search) ?? false) ||
+            (item.login?.username.toLowerCase().includes(search) ?? false);
         } else if ('title' in item) {
-          matches = item.title.toLowerCase().includes(searchLower);
+          match = item.title.toLowerCase().includes(search);
         } else if ('comment' in item) {
-          matches = item.comment.toLowerCase().includes(searchLower);
+          match = item.comment.toLowerCase().includes(search);
         } else if ('content' in item && typeof item.content === 'string') {
-          matches = item.content.toLowerCase().includes(searchLower);
+          match = item.content.toLowerCase().includes(search);
         } else if ('body' in item && typeof item.body === 'string') {
-          matches = item.body.toLowerCase().includes(searchLower);
+          match = item.body.toLowerCase().includes(search);
         }
 
-        if (!matches) return false;
+        if (!match) return false;
       }
 
-      /* ---- USER ID FILTER ---- */
-      if (hasUserIdFilter) {
+      if (hasUserId) {
         if ('userId' in item) {
-          if (String(item.userId) !== filters.userId) return false;
-        } else if (tab === 'users' && 'id' in item) {
-          if (String(item.id) !== filters.userId) return false;
-        } else {
-          return false;
+          return String(item.userId) === filters.userId;
         }
+        if (tab === 'users') {
+          return String(item.id) === filters.userId;
+        }
+        return false;
       }
 
       return true;
     });
   }, [data, filters, tab]);
 
-  /* -------------------- PAGINATION -------------------- */
-  const totalPages = Math.ceil(filteredData.length / PAGE_SIZE);
-  const validPage = Math.max(1, Math.min(currentPage, totalPages || 1));
-  const startIndex = (validPage - 1) * PAGE_SIZE;
-  const paginatedData = filteredData.slice(
-    startIndex,
-    startIndex + PAGE_SIZE
-  );
+  /* ---------------- PAGINATION ---------------- */
+  const totalPages = Math.max(1, Math.ceil(filteredData.length / PAGE_SIZE));
+  const validPage = Math.min(Math.max(1, currentPage), totalPages);
+  const start = (validPage - 1) * PAGE_SIZE;
+  const paginatedData = filteredData.slice(start, start + PAGE_SIZE);
 
   useEffect(() => {
-    if (currentPage !== validPage && totalPages > 0) {
+    if (currentPage !== validPage) {
       const params = new URLSearchParams(searchParams);
       validPage === 1
         ? params.delete('page')
         : params.set('page', String(validPage));
       setSearchParams(params, { replace: true });
     }
-  }, [currentPage, validPage, totalPages, searchParams, setSearchParams]);
+  }, [currentPage, validPage, searchParams, setSearchParams]);
 
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams);
@@ -138,17 +130,18 @@ function DashboardList() {
   };
 
   const handleItemClick = (id: number) => {
+    if (!tab) return;
     navigate(`/dashboard/${tab}/${id}`);
   };
 
-  /* -------------------- RENDER -------------------- */
+  /* ---------------- RENDER ---------------- */
   return (
     <div className="dashboard-list">
       <SharedFilters />
 
       <div className="list-header">
         <h2>
-          {tab?.charAt(0).toUpperCase() + tab?.slice(1)} (
+          {tab ? tab.charAt(0).toUpperCase() + tab.slice(1) : 'Dashboard'} (
           {loading ? '...' : filteredData.length})
         </h2>
       </div>
@@ -173,7 +166,7 @@ function DashboardList() {
                 {tab === 'posts' && 'thumbnail' in item && (
                   <img
                     src={item.thumbnail}
-                    alt={'title' in item ? item.title : 'post'}
+                    alt={item.title}
                     className="post-thumbnail"
                   />
                 )}
@@ -191,61 +184,27 @@ function DashboardList() {
                     </div>
                   )}
 
-                  {tab === 'posts' && 'title' in item && (
-                    <>
-                      <div className="item-title">{item.title}</div>
-
-                      {'category' in item && (
-                        <div className="post-category">
-                          {item.category}
-                        </div>
-                      )}
-
-                      {'content' in item &&
-                        typeof item.content === 'string' && (
-                          <div className="item-body">{item.content}</div>
-                        )}
-
-                      {'publishedAt' in item && (
-                        <div className="item-meta">
-                          Published: {item.publishedAt}
-                          {'userId' in item &&
-                            ` • User ID: ${item.userId}`}
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                  {tab === 'comments' && 'comment' in item && (
-                    <div className="item-body">{item.comment}</div>
-                  )}
-
-                  {tab === 'albums' && 'title' in item && (
+                  {'title' in item && (
                     <div className="item-title">{item.title}</div>
                   )}
 
-                  {'email' in item && (
-                    <div className="item-subtitle">{item.email}</div>
-                  )}
-
-                  {tab === 'users' && 'login' in item && item.login && (
-                    <div className="item-subtitle">
-                      @{item.login.username}
-                    </div>
-                  )}
+                  {'content' in item &&
+                    typeof item.content === 'string' && (
+                      <div className="item-body">{item.content}</div>
+                    )}
 
                   {'body' in item &&
-                    tab !== 'posts' &&
-                    tab !== 'comments' &&
                     typeof item.body === 'string' && (
                       <div className="item-body">{item.body}</div>
                     )}
 
+                  {'comment' in item && (
+                    <div className="item-body">{item.comment}</div>
+                  )}
+
                   {'userId' in item && tab !== 'posts' && (
                     <div className="item-meta">
                       User ID: {item.userId}
-                      {'postId' in item &&
-                        ` • Post ID: ${item.postId}`}
                     </div>
                   )}
                 </div>

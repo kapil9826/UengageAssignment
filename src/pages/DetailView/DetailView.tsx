@@ -18,22 +18,18 @@ function DetailView() {
 
   const [item, setItem] = useState<DetailItem | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(false);
 
-  /* -------------------- FETCH ITEM -------------------- */
   useEffect(() => {
     if (!tab || !id) return;
 
     setLoading(true);
-    setError(null);
-    setItem(null);
+    setError(false);
 
     const loadItem = async () => {
       try {
         const itemId = Number(id);
-        if (Number.isNaN(itemId)) {
-          throw new Error('Invalid ID');
-        }
+        if (Number.isNaN(itemId)) throw new Error();
 
         let result: DetailItem;
 
@@ -51,12 +47,12 @@ function DetailView() {
             result = await fetchAlbumById(itemId);
             break;
           default:
-            throw new Error('Invalid tab');
+            throw new Error();
         }
 
         setItem(result);
       } catch {
-        setError('Item not found');
+        setError(true);
         setItem(null);
       } finally {
         setLoading(false);
@@ -67,13 +63,11 @@ function DetailView() {
   }, [tab, id]);
 
   const handleBack = () => {
+    if (!tab) return;
     navigate(`/dashboard/${tab}`);
   };
 
-  /* -------------------- STATES -------------------- */
-  if (loading) {
-    return <DetailSkeleton />;
-  }
+  if (loading) return <DetailSkeleton />;
 
   if (error || !item) {
     return (
@@ -89,208 +83,25 @@ function DetailView() {
     );
   }
 
-  /* -------------------- RENDER -------------------- */
   return (
     <div className="detail-view">
       <button className="back-btn" onClick={handleBack}>
-        ← Back to {tab}
+        ← Back to {tab ?? 'dashboard'}
       </button>
 
       <div className="detail-card">
-        <div className="detail-header">
-          <h1 className="detail-title">
-            {tab?.charAt(0).toUpperCase() + tab?.slice(1)} #{item.id}
-          </h1>
-        </div>
+        <h1 className="detail-title">
+          {tab?.toUpperCase()} #{item.id}
+        </h1>
 
         <div className="detail-content">
-          {/* ---------------- USERS ---------------- */}
-          {tab === 'users' && 'firstname' in item && (
-            <>
-              <div className="detail-field">
-                <label>First Name</label>
-                <div>{item.firstname}</div>
-              </div>
-
-              <div className="detail-field">
-                <label>Last Name</label>
-                <div>{item.lastname}</div>
-              </div>
-
-              {item.login && (
-                <div className="detail-field">
-                  <label>Username</label>
-                  <div>{item.login.username}</div>
-                </div>
-              )}
-
-              {'email' in item && item.email && (
-                <div className="detail-field">
-                  <label>Email</label>
-                  <div>{item.email}</div>
-                </div>
-              )}
-
-              {'phone' in item && item.phone && (
-                <div className="detail-field">
-                  <label>Phone</label>
-                  <div>{item.phone}</div>
-                </div>
-              )}
-
-              {'website' in item && item.website && (
-                <div className="detail-field">
-                  <label>Website</label>
-                  <div>{item.website}</div>
-                </div>
-              )}
-
-              {item.address && (
-                <div className="detail-field">
-                  <label>Address</label>
-                  <div>
-                    {item.address.street}, {item.address.suite}
-                    <br />
-                    {item.address.city}, {item.address.zipcode}
-                  </div>
-                </div>
-              )}
-
-              {item.company && (
-                <div className="detail-field">
-                  <label>Company</label>
-                  <div>{item.company.name}</div>
-                </div>
-              )}
-            </>
-          )}
-
-          {/* ---------------- POSTS ---------------- */}
-          {tab === 'posts' && 'title' in item && (
-            <>
-              {'image' in item && item.image && (
-                <div className="detail-field">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="post-detail-image"
-                  />
-                </div>
-              )}
-
-              <div className="detail-field">
-                <label>Title</label>
-                <div className="post-detail-title">{item.title}</div>
-              </div>
-
-              {'category' in item && (
-                <div className="detail-field">
-                  <label>Category</label>
-                  <div className="post-category-badge">{item.category}</div>
-                </div>
-              )}
-
-              {'content' in item &&
-                typeof item.content === 'string' && (
-                  <div className="detail-field">
-                    <label>Content</label>
-                    <div className="detail-body">{item.content}</div>
-                  </div>
-                )}
-
-              {'slug' in item && (
-                <div className="detail-field">
-                  <label>Slug</label>
-                  <div className="post-slug">{item.slug}</div>
-                </div>
-              )}
-
-              {'url' in item && (
-                <div className="detail-field">
-                  <label>URL</label>
-                  <a
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="post-url"
-                  >
-                    {item.url}
-                  </a>
-                </div>
-              )}
-
-              {'status' in item && (
-                <div className="detail-field">
-                  <label>Status</label>
-                  <div className={`post-status post-status-${item.status}`}>
-                    {item.status}
-                  </div>
-                </div>
-              )}
-
-              {'publishedAt' in item && (
-                <div className="detail-field">
-                  <label>Published At</label>
-                  <div>{item.publishedAt}</div>
-                </div>
-              )}
-
-              {'updatedAt' in item && (
-                <div className="detail-field">
-                  <label>Updated At</label>
-                  <div>{item.updatedAt}</div>
-                </div>
-              )}
-
-              {'userId' in item && (
-                <div className="detail-field">
-                  <label>User ID</label>
-                  <div>{item.userId}</div>
-                </div>
-              )}
-            </>
-          )}
-
-          {/* ---------------- COMMENTS ---------------- */}
-          {tab === 'comments' && 'comment' in item && (
-            <>
-              <div className="detail-field">
-                <label>Comment</label>
-                <div className="detail-body">{item.comment}</div>
-              </div>
-
-              {'postId' in item && (
-                <div className="detail-field">
-                  <label>Post ID</label>
-                  <div>{item.postId}</div>
-                </div>
-              )}
-
-              {'userId' in item && (
-                <div className="detail-field">
-                  <label>User ID</label>
-                  <div>{item.userId}</div>
-                </div>
-              )}
-            </>
-          )}
-
-          {/* ---------------- ALBUMS ---------------- */}
-          {tab === 'albums' && 'title' in item && (
-            <>
-              <div className="detail-field">
-                <label>Title</label>
-                <div>{item.title}</div>
-              </div>
-
-              {'userId' in item && (
-                <div className="detail-field">
-                  <label>User ID</label>
-                  <div>{item.userId}</div>
-                </div>
-              )}
-            </>
-          )}
+          {'title' in item && <div>{item.title}</div>}
+          {'content' in item &&
+            typeof item.content === 'string' && (
+              <div>{item.content}</div>
+            )}
+          {'comment' in item && <div>{item.comment}</div>}
+          {'userId' in item && <div>User ID: {item.userId}</div>}
         </div>
       </div>
     </div>
