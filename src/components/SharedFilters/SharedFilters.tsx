@@ -4,9 +4,12 @@ import './SharedFilters.css';
 
 function SharedFilters() {
   const { filters, updateFilters } = useFilters();
+
   const [searchValue, setSearchValue] = useState(filters.search);
   const [userIdValue, setUserIdValue] = useState(filters.userId);
-  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+
+  // ✅ Correct timeout type for browser
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setSearchValue(filters.search);
@@ -15,9 +18,11 @@ function SharedFilters() {
 
   const handleSearchChange = (value: string) => {
     setSearchValue(value);
+
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
+
     searchTimeoutRef.current = setTimeout(() => {
       updateFilters({ search: value });
     }, 300);
@@ -41,6 +46,7 @@ function SharedFilters() {
           className="filter-input"
         />
       </div>
+
       <div className="filter-group">
         <label htmlFor="userId">User ID</label>
         <input
@@ -57,4 +63,3 @@ function SharedFilters() {
 }
 
 export default SharedFilters;
-
