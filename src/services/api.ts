@@ -2,7 +2,8 @@ import axios from 'axios';
 import { User, Post, Comment, Album } from '../types';
 import { getCachedData, setCachedData } from './cache';
 
-const BASE_URL = import.meta.env.DEV ? '/api' : 'https://jsonplaceholder.org';
+// Use Vite proxy in development, Vercel serverless function in production
+const BASE_URL = '/api';
 
 const api = axios.create({
   baseURL: BASE_URL,
