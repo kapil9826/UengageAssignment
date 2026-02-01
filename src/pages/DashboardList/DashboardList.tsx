@@ -179,33 +179,111 @@ function DashboardList() {
                   }
                 >
                   {tab === 'users' && 'firstname' in item && (
-                    <div className="item-title">
-                      {item.firstname} {item.lastname}
-                    </div>
+                    <>
+                      <div className="item-title">
+                        {item.firstname} {item.lastname}
+                      </div>
+                      <div className="item-meta">
+                        <span className="meta-item">
+                          <strong>Email:</strong> {item.email}
+                        </span>
+                        {item.phone && (
+                          <span className="meta-item">
+                            <strong>Phone:</strong> {item.phone}
+                          </span>
+                        )}
+                        {item.company && (
+                          <span className="meta-item">
+                            <strong>Company:</strong> {item.company.name}
+                          </span>
+                        )}
+                        {item.address && (
+                          <span className="meta-item">
+                            <strong>City:</strong> {item.address.city}
+                          </span>
+                        )}
+                      </div>
+                    </>
                   )}
 
-                  {'title' in item && (
-                    <div className="item-title">{item.title}</div>
+                  {tab === 'posts' && 'title' in item && (
+                    <>
+                      <div className="item-title">{item.title}</div>
+                      {'content' in item &&
+                        typeof item.content === 'string' && (
+                          <div className="item-body">
+                            {item.content.length > 200
+                              ? `${item.content.substring(0, 200)}...`
+                              : item.content}
+                          </div>
+                        )}
+                      <div className="item-meta">
+                        <span className="meta-item">
+                          <strong>Category:</strong>{' '}
+                          <span className="post-category-badge-small">
+                            {item.category}
+                          </span>
+                        </span>
+                        <span className="meta-item">
+                          <strong>Status:</strong>{' '}
+                          <span
+                            className={`post-status-small post-status-${item.status}`}
+                          >
+                            {item.status}
+                          </span>
+                        </span>
+                        <span className="meta-item">
+                          <strong>Published:</strong> {item.publishedAt}
+                        </span>
+                        {'userId' in item && (
+                          <span className="meta-item">
+                            <strong>User ID:</strong> {item.userId}
+                          </span>
+                        )}
+                      </div>
+                    </>
                   )}
 
-                  {'content' in item &&
-                    typeof item.content === 'string' && (
-                      <div className="item-body">{item.content}</div>
-                    )}
+                  {tab !== 'users' && tab !== 'posts' && (
+                    <>
+                      {'title' in item && (
+                        <div className="item-title">{item.title}</div>
+                      )}
 
-                  {'body' in item &&
-                    typeof item.body === 'string' && (
-                      <div className="item-body">{item.body}</div>
-                    )}
+                      {'content' in item &&
+                        typeof item.content === 'string' && (
+                          <div className="item-body">
+                            {item.content.length > 200
+                              ? `${item.content.substring(0, 200)}...`
+                              : item.content}
+                          </div>
+                        )}
 
-                  {'comment' in item && (
-                    <div className="item-body">{item.comment}</div>
-                  )}
+                      {'body' in item &&
+                        typeof item.body === 'string' && (
+                          <div className="item-body">
+                            {item.body.length > 200
+                              ? `${item.body.substring(0, 200)}...`
+                              : item.body}
+                          </div>
+                        )}
 
-                  {'userId' in item && tab !== 'posts' && (
-                    <div className="item-meta">
-                      User ID: {item.userId}
-                    </div>
+                      {'comment' in item && (
+                        <div className="item-body">
+                          {item.comment.length > 200
+                            ? `${item.comment.substring(0, 200)}...`
+                            : item.comment}
+                        </div>
+                      )}
+
+                      {'userId' in item && (
+                        <div className="item-meta">
+                          <span className="meta-item">
+                            <strong>User ID:</strong> {item.userId}
+                          </span>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>

@@ -3,20 +3,31 @@ export interface User {
   firstname: string;
   lastname: string;
   email: string;
-  phone?: string;
-  website?: string;
-  login?: {
-    username: string;
+  birthDate?: string;
+  login: {
     uuid: string;
+    username: string;
+    password?: string;
+    md5?: string;
+    sha1?: string;
+    registered?: string;
   };
-  address?: {
+  address: {
     street: string;
-    suite: string;
+    suite?: string;
     city: string;
     zipcode: string;
+    geo?: {
+      lat: string;
+      lng: string;
+    };
   };
+  phone?: string;
+  website?: string;
   company?: {
     name: string;
+    catchPhrase?: string;
+    bs?: string;
   };
 }
 

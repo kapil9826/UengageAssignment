@@ -78,8 +78,54 @@
 
 .item-meta {
   font-size: 0.85rem;
-  color: var(--text-muted);
-  margin-top: 0.5rem;
+  color: var(--text-secondary);
+  margin-top: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.meta-item strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.post-category-badge-small {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: var(--primary-color);
+  color: var(--background);
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.post-status-small {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.post-status-small.post-status-published {
+  background: rgba(0, 255, 136, 0.2);
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+
+.post-status-small.post-status-draft {
+  background: rgba(179, 179, 179, 0.2);
+  color: var(--text-secondary);
+  border: 1px solid var(--text-secondary);
 }
 
 .post-thumbnail {

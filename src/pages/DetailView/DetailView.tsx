@@ -83,6 +83,188 @@ function DetailView() {
     );
   }
 
+  const renderUserDetail = (user: User) => (
+    <div className="detail-content">
+      <div className="detail-section">
+        <h2 className="section-title">Personal Information</h2>
+        <div className="detail-grid">
+          <div className="detail-field">
+            <label>Full Name</label>
+            <div>{user.firstname} {user.lastname}</div>
+          </div>
+          <div className="detail-field">
+            <label>Email</label>
+            <div><a href={`mailto:${user.email}`}>{user.email}</a></div>
+          </div>
+          {user.phone && (
+            <div className="detail-field">
+              <label>Phone</label>
+              <div><a href={`tel:${user.phone}`}>{user.phone}</a></div>
+            </div>
+          )}
+          {user.website && (
+            <div className="detail-field">
+              <label>Website</label>
+              <div><a href={user.website} target="_blank" rel="noopener noreferrer">{user.website}</a></div>
+            </div>
+          )}
+          {user.birthDate && (
+            <div className="detail-field">
+              <label>Birth Date</label>
+              <div>{new Date(user.birthDate).toLocaleDateString()}</div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="detail-section">
+        <h2 className="section-title">Login Information</h2>
+        <div className="detail-grid">
+          <div className="detail-field">
+            <label>Username</label>
+            <div className="post-slug">{user.login.username}</div>
+          </div>
+          <div className="detail-field">
+            <label>UUID</label>
+            <div className="post-slug">{user.login.uuid}</div>
+          </div>
+          {user.login.registered && (
+            <div className="detail-field">
+              <label>Registered</label>
+              <div>{new Date(user.login.registered).toLocaleString()}</div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="detail-section">
+        <h2 className="section-title">Address</h2>
+        <div className="detail-grid">
+          <div className="detail-field">
+            <label>Street</label>
+            <div>{user.address.street}</div>
+          </div>
+          {user.address.suite && (
+            <div className="detail-field">
+              <label>Suite</label>
+              <div>{user.address.suite}</div>
+            </div>
+          )}
+          <div className="detail-field">
+            <label>City</label>
+            <div>{user.address.city}</div>
+          </div>
+          <div className="detail-field">
+            <label>Zipcode</label>
+            <div>{user.address.zipcode}</div>
+          </div>
+          {user.address.geo && (
+            <div className="detail-field">
+              <label>Coordinates</label>
+              <div>
+                <a 
+                  href={`https://www.google.com/maps?q=${user.address.geo.lat},${user.address.geo.lng}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="post-url"
+                >
+                  {user.address.geo.lat}, {user.address.geo.lng}
+                </a>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {user.company && (
+        <div className="detail-section">
+          <h2 className="section-title">Company</h2>
+          <div className="detail-grid">
+            <div className="detail-field">
+              <label>Company Name</label>
+              <div>{user.company.name}</div>
+            </div>
+            {user.company.catchPhrase && (
+              <div className="detail-field">
+                <label>Catch Phrase</label>
+                <div>{user.company.catchPhrase}</div>
+              </div>
+            )}
+            {user.company.bs && (
+              <div className="detail-field">
+                <label>Business</label>
+                <div>{user.company.bs}</div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderPostDetail = (post: Post) => (
+    <div className="detail-content">
+      {post.image && (
+        <img src={post.image} alt={post.title} className="post-detail-image" />
+      )}
+      
+      <div className="detail-section">
+        <h2 className="section-title">Post Information</h2>
+        <div className="detail-grid">
+          <div className="detail-field full-width">
+            <label>Title</label>
+            <div className="post-detail-title">{post.title}</div>
+          </div>
+          <div className="detail-field">
+            <label>Slug</label>
+            <div className="post-slug">{post.slug}</div>
+          </div>
+          <div className="detail-field">
+            <label>URL</label>
+            <div>
+              <a href={post.url} target="_blank" rel="noopener noreferrer" className="post-url">
+                {post.url}
+              </a>
+            </div>
+          </div>
+          <div className="detail-field">
+            <label>Category</label>
+            <div>
+              <span className="post-category-badge">{post.category}</span>
+            </div>
+          </div>
+          <div className="detail-field">
+            <label>Status</label>
+            <div>
+              <span className={`post-status post-status-${post.status}`}>
+                {post.status}
+              </span>
+            </div>
+          </div>
+          <div className="detail-field">
+            <label>User ID</label>
+            <div>{post.userId}</div>
+          </div>
+          <div className="detail-field">
+            <label>Published At</label>
+            <div>{post.publishedAt}</div>
+          </div>
+          <div className="detail-field">
+            <label>Updated At</label>
+            <div>{post.updatedAt}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="detail-section">
+        <h2 className="section-title">Content</h2>
+        <div className="detail-field full-width">
+          <div className="detail-body">{post.content}</div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="detail-view">
       <button className="back-btn" onClick={handleBack}>
@@ -91,18 +273,49 @@ function DetailView() {
 
       <div className="detail-card">
         <h1 className="detail-title">
-          {tab?.toUpperCase()} #{item.id}
+          {tab === 'users' && 'firstname' in item
+            ? `${item.firstname} ${item.lastname}`
+            : tab === 'posts' && 'title' in item
+            ? item.title
+            : `${tab?.toUpperCase()} #${item.id}`}
         </h1>
 
-        <div className="detail-content">
-          {'title' in item && <div>{item.title}</div>}
-          {'content' in item &&
-            typeof item.content === 'string' && (
-              <div>{item.content}</div>
+        {tab === 'users' && 'firstname' in item && renderUserDetail(item as User)}
+        {tab === 'posts' && 'title' in item && renderPostDetail(item as Post)}
+        {tab === 'comments' && 'comment' in item && (
+          <div className="detail-content">
+            <div className="detail-field">
+              <label>Comment</label>
+              <div className="detail-body">{item.comment}</div>
+            </div>
+            {'userId' in item && (
+              <div className="detail-field">
+                <label>User ID</label>
+                <div>{item.userId}</div>
+              </div>
             )}
-          {'comment' in item && <div>{item.comment}</div>}
-          {'userId' in item && <div>User ID: {item.userId}</div>}
-        </div>
+            {'postId' in item && (
+              <div className="detail-field">
+                <label>Post ID</label>
+                <div>{item.postId}</div>
+              </div>
+            )}
+          </div>
+        )}
+        {tab === 'albums' && 'title' in item && (
+          <div className="detail-content">
+            <div className="detail-field">
+              <label>Title</label>
+              <div>{item.title}</div>
+            </div>
+            {'userId' in item && (
+              <div className="detail-field">
+                <label>User ID</label>
+                <div>{item.userId}</div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
