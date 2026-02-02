@@ -27,9 +27,13 @@
 }
 
 .tab-btn.active {
-  color: var(--primary-color);
-  border-bottom-color: var(--primary-color);
-  background: var(--background-card);
+  color: var(--primary-color) !important;
+  border-bottom: 4px solid var(--primary-color) !important;
+  background: var(--background-card) !important;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0, 255, 136, 0.25);
+  text-shadow: 0 0 12px rgba(0, 255, 136, 0.5);
+  transform: translateY(-1px);
 }
 
 @media (max-width: 768px) {
