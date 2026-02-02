@@ -164,11 +164,21 @@ function DashboardList() {
                 )}
 
                 {tab === 'posts' && 'thumbnail' in item && (
-                  <img
-                    src={item.thumbnail}
-                    alt={item.title}
-                    className="post-thumbnail"
-                  />
+                  <div className="post-thumbnail-wrapper">
+                    <img
+                      src={item.thumbnail}
+                      alt={item.title}
+                      className="post-thumbnail"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const wrapper = target.parentElement;
+                        if (wrapper) {
+                          wrapper.classList.add('no-image');
+                        }
+                      }}
+                    />
+                  </div>
                 )}
 
                 <div
